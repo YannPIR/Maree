@@ -46,23 +46,113 @@
         <title>Marée de Plougrescant</title>
     </head>
     <body>
-        <div id="map">
-            <div id="popup" class="ol-popup">
-                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-                <div id="popup-content"></div>
-            </div>
+    <!-- Carte -->
+    <div id="map">
+        <div id="popup" class="ol-popup">
+            <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+            <div id="popup-content"></div>
         </div>
-        <script src="resources/qgis2web_expressions.js"></script>
-<script src="resources/proj4.js"></script>
-        <script>proj4.defs('EPSG:4326','+proj=longlat +datum=WGS84 +no_defs');</script>
-        <script src="./resources/functions.js"></script>
-        <script src="./resources/ol.js"></script>
-        <script src="./resources/ol-layerswitcher.js"></script>
-        <script src="resources/photon-geocoder-autocomplete.min.js"></script>
-        <script src="layers/Niveau_4_2.js"></script><script src="layers/Niveau_3_3.js"></script><script src="layers/Niveau_2_4.js"></script><script src="layers/Niveau_1_5.js"></script><script src="layers/Niveau_0_6.js"></script><script src="layers/Niveau_3_7.js"></script><script src="layers/Niveau_2_8.js"></script><script src="layers/Niveau_1_9.js"></script><script src="layers/spot_10.js"></script>
-        <script src="styles/Niveau_4_2_style.js"></script><script src="styles/Niveau_3_3_style.js"></script><script src="styles/Niveau_2_4_style.js"></script><script src="styles/Niveau_1_5_style.js"></script><script src="styles/Niveau_0_6_style.js"></script><script src="styles/Niveau_3_7_style.js"></script><script src="styles/Niveau_2_8_style.js"></script><script src="styles/Niveau_1_9_style.js"></script><script src="styles/spot_10_style.js"></script>
-        <script src="./layers/layers.js" type="text/javascript"></script> 
-        <script src="./resources/Autolinker.min.js"></script>
-        <script src="./resources/qgis2web.js"></script>        
-    </body>
+    </div>
+
+    <!-- Slider pour sélectionner un niveau -->
+    <div id="niveau-slider" 
+         style="position:absolute; top:120px; right:10px; 
+                background:white; padding:10px; z-index:9999; border-radius:6px;">
+        <input type="range" min="1" max="8" value="1" id="sliderNiveau">
+    </div>
+	
+	<div id="hauteurDisplay" 
+     style="position:absolute; top:180px; right:10px; 
+            background:white; padding:10px; z-index:9999; border-radius:6px;">
+    Hauteur mer: <span id="hauteurValue">-</span> m
+	</div>
+
+    <!-- Scripts nécessaires -->
+    <script src="resources/qgis2web_expressions.js"></script>
+    <script src="resources/proj4.js"></script>
+    <script>proj4.defs('EPSG:4326','+proj=longlat +datum=WGS84 +no_defs');</script>
+    <script src="./resources/functions.js"></script>
+    <script src="./resources/ol.js"></script>
+    <script src="./resources/ol-layerswitcher.js"></script>
+    <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+
+    <!-- Layers -->
+    <script src="layers/Niveau_4_2.js"></script>
+    <script src="layers/Niveau_3_3.js"></script>
+    <script src="layers/Niveau_2_4.js"></script>
+    <script src="layers/Niveau_1_5.js"></script>
+    <script src="layers/Niveau_0_6.js"></script>
+    <script src="layers/Niveau_3_7.js"></script>
+    <script src="layers/Niveau_2_8.js"></script>
+    <script src="layers/Niveau_1_9.js"></script>
+    <script src="layers/spot_10.js"></script>
+
+    <!-- Styles -->
+    <script src="styles/Niveau_4_2_style.js"></script>
+    <script src="styles/Niveau_3_3_style.js"></script>
+    <script src="styles/Niveau_2_4_style.js"></script>
+    <script src="styles/Niveau_1_5_style.js"></script>
+    <script src="styles/Niveau_0_6_style.js"></script>
+    <script src="styles/Niveau_3_7_style.js"></script>
+    <script src="styles/Niveau_2_8_style.js"></script>
+    <script src="styles/Niveau_1_9_style.js"></script>
+    <script src="styles/spot_10_style.js"></script>
+
+    <!-- Layers.js -->
+    <script src="./layers/layers.js" type="text/javascript"></script>
+
+    <script src="./resources/Autolinker.min.js"></script>
+    <script src="./resources/qgis2web.js"></script>
+
+    <!-- Code JS pour le slider, exécuté après le chargement du DOM -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+		// Tableau des 8 niveaux
+		var niveaux = [
+			lyr_Niveau_4_2,
+			lyr_Niveau_3_3,
+			lyr_Niveau_2_4,
+			lyr_Niveau_1_5,
+			lyr_Niveau_0_6,
+			lyr_Niveau_1_9,
+			lyr_Niveau_2_8,
+			lyr_Niveau_3_7
+		];
+
+		// Élément où afficher la valeur
+		var display = document.getElementById("hauteurValue");
+
+		// Initialisation : seul le premier niveau est visible
+		niveaux.forEach(function(layer, i) {
+			layer.setVisible(i === 0);
+		});
+
+		// Affichage initial
+		updateDisplay(0);
+
+		// Sélection du slider
+		var slider = document.getElementById("sliderNiveau");
+		slider.addEventListener("input", function() {
+			var index = parseInt(this.value) - 1; // -1 car tableau commence à 0
+			niveaux.forEach(function(layer, i) {
+				layer.setVisible(i === index);
+			});
+			updateDisplay(index); // <- important !
+		});
+
+		function updateDisplay(index) {
+			var layer = niveaux[index];
+			// On suppose qu’il n’y a qu’une seule feature par couche
+			var features = layer.getSource().getFeatures();
+			if (features.length > 0) {
+				var val = features[0].get('Hauteur_mer');
+				display.textContent = val;
+			} else {
+				display.textContent = '-';
+			}
+		}
+	});
+
+    </script>
+</body>
 </html>
