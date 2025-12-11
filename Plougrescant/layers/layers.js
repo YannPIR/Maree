@@ -65,7 +65,7 @@ var lyr_spot_10 = new ol.layer.Vector({
     style: style_spot_10,
     popuplayertitle: 'spot',
     interactive: true,
-    title: '<img src="styles/legend/spot_10.png" /> spot'
+    title: '<img src="styles/legend/spot_10.png" /> Sites'
 });
 
 // Visibilité initiale
