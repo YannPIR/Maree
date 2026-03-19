@@ -57,21 +57,37 @@
 }
 </style></head>
 
-<!-- Calendrier pour sélectionner un niveau -->
-    <div id="timeControl">
-		<input
-			type="datetime-local"
-			id="timeInput"
-			min="2026-04-01T01:24"
-			max="2026-10-01T00:01">
-	</div>
-	
-<!-- Affichage de la hauteur correspondante-->
-	<div id="hauteurDisplay" 
-     style="position:absolute; top:50px; right:10px; 
-            background:white; padding:10px; z-index:9999; border-radius:6px;">
-    Hauteur mer: <span id="hauteurValue">-</span> m
-	</div>
+<div id="controls" 
+     style="position:absolute; top:10px; right:10px; 
+            background:white; padding:10px; z-index:9999; 
+            border-radius:6px; box-shadow:0 0 5px rgba(0,0,0,0.2);
+            display:flex; flex-direction:column; gap:8px;">
+
+    <div>
+        <input
+            type="datetime-local"
+            id="timeInput"
+            style="width:100%;"
+            min="2026-04-01T01:24"
+            max="2026-10-01T00:01">
+    </div>
+
+    <div>
+        <label>Heure :</label>
+        <input id="hourSlider" 
+               type="range" 
+               min="0" 
+               max="23.99" 
+               step="0.01" 
+               value="12"
+               style="width:100%;">
+    </div>
+
+    <div id="hauteurDisplay">
+        Hauteur mer: <span id="hauteurValue">-</span> m
+    </div>
+
+</div>
 	
 <div id="map">
 	<div class="ol-popup" id="popup">
@@ -173,6 +189,17 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(res => res.json())
         .then(data => marees = data);
 
+    // 👉 format date local
+    function formatLocalDate(date) {
+        const pad = n => String(n).padStart(2, '0');
+
+        return date.getFullYear() + "-" +
+            pad(date.getMonth() + 1) + "-" +
+            pad(date.getDate()) + "T" +
+            pad(date.getHours()) + ":" +
+            pad(date.getMinutes());
+    }
+
     // 👉 trouve la marée la plus proche
     function findClosestDate(target, marees) {
         const targetTime = new Date(target).getTime();
@@ -186,61 +213,86 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // 👉 trouver la couche correspondante
     function findClosestLayer(level, layers) {
-    let bestLayer = null;
-    let bestDiff = Infinity;
-	
-    layers.forEach(layer => {
-        const source = layer.getSource();
-        if (!source) return;
+        let bestLayer = null;
+        let bestDiff = Infinity;
 
-        const features = source.getFeatures();
-        if (!features.length) return;
+        layers.forEach(layer => {
+            const source = layer.getSource();
+            if (!source) return;
 
-        // ⚠️ utiliser le bon champ
-        const h = features[0].get('hauteur');
+            const features = source.getFeatures();
+            if (!features.length) return;
 
-        if (h === undefined) return;
+            const h = features[0].get('hauteur');
+            if (h === undefined) return;
 
-        const diff = Math.abs(h - level);
+            const diff = Math.abs(h - level);
 
-        if (diff < bestDiff) {
-            bestDiff = diff;
-            bestLayer = layer;
-        }
-    });
+            if (diff < bestDiff) {
+                bestDiff = diff;
+                bestLayer = layer;
+            }
+        });
 
-    return bestLayer;
-}
+        return bestLayer;
+    }
 
     // 👉 mise à jour de la carte
     function updateMap(datetimeInput) {
         if (!marees.length) return;
 
         const maree = findClosestDate(datetimeInput, marees);
-
         const level = maree.level;
 
-        const bestLayer = findClosestLayer(level,niveaux);
+        const bestLayer = findClosestLayer(level, niveaux);
 
         // cacher toutes les couches
         niveaux.forEach(l => l.setVisible(false));
 
-        // afficher la bonne couche ainsi que la hauteur
+        // afficher la bonne couche
         if (bestLayer) {
             bestLayer.setVisible(true);
         }
-		document.getElementById("hauteurValue").textContent = level.toFixed(1);
-		
-		
+
+        // afficher hauteur (1 décimale)
+        document.getElementById("hauteurValue").textContent = level.toFixed(1);
+
         console.log("Date demandée :", datetimeInput);
         console.log("Date de marée utilisée :", maree.datetime);
         console.log("Hauteur réelle :", level);
-
     }
 
-    // 👉 input datetime
-    document.getElementById("timeInput").addEventListener("change", function(e) {
+    // 👉 éléments
+    const timeInput = document.getElementById("timeInput");
+    const hourSlider = document.getElementById("hourSlider");
+
+    // 👉 datetime → carte
+    timeInput.addEventListener("change", function(e) {
+        const date = new Date(e.target.value);
+
+        if (!isNaN(date)) {
+            const hours = date.getHours() + date.getMinutes() / 60;
+            hourSlider.value = hours;
+        }
+
         updateMap(e.target.value);
+    });
+
+    // 👉 slider → datetime
+    hourSlider.addEventListener("input", function() {
+        const date = new Date(timeInput.value);
+
+        if (isNaN(date)) return;
+
+        const hours = parseFloat(hourSlider.value);
+
+        date.setHours(0, 0, 0, 0);
+        date.setHours(Math.floor(hours));
+        date.setMinutes(Math.floor((hours % 1) * 60));
+
+        timeInput.value = formatLocalDate(date);
+
+        updateMap(timeInput.value);
     });
 
 });
