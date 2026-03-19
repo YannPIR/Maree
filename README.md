@@ -17,7 +17,7 @@ Cela devrait être suffisamment cohérent avec les sites de relevée de marées 
 
 ## Sources :
 **Vue satellite** : Ortho Littorale V3 - Ministère en charge de l’environnement  
-**Modèle de Terrain** : Shom - IGN, 2024. https://doi.org/10.17183/LITTO3D_BZH_2018_2021
+**Modèle de Terrain** : Shom - IGN, 2024. https://doi.org/10.17183/LITTO3D_BZH_2018_2021  
 **Prévision de basse et pleine mer** : Christian Guine
 
 ## Remarques
