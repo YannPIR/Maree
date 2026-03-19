@@ -4,15 +4,12 @@ var map = new ol.Map({
     renderer: 'canvas',
     layers: layersList,
     view: new ol.View({
-         maxZoom: 18, minZoom: 14, projection: new ol.proj.Projection({
-            code: 'EPSG:4326',
-            //extent: [-3.080268, 48.815419, -3.069988, 48.820972],
-            units: 'degrees'})
+         maxZoom: 22, minZoom: 14
     })
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([-3.076395, 48.816885, -3.073147, 48.818898], map.getSize());
+map.getView().fit([-342893.870175, 6243594.657162, -341736.507640, 6244538.796263], map.getSize());
 
 //full zooms only
 map.getView().setProperties({constrainResolution: true});
@@ -151,7 +148,7 @@ var featureOverlay = new ol.layer.Vector({
 });
 
 var doHighlight = false;
-var doHover = false;
+var doHover = true;
 
 function createPopupField(currentFeature, currentFeatureKeys, layer) {
     var popupText = '';
@@ -501,7 +498,7 @@ var Title = new ol.control.Control({
     element: (() => {
         var titleElement = document.createElement('div');
         titleElement.className = 'bottom-right-title ol-control';
-        titleElement.innerHTML = '<h2 class="project-title">Marée de Loguivy</h2>';
+        titleElement.innerHTML = '<h2 class="project-title">Loguivy de la Mer</h2>';
         return titleElement;
     })(),
     target: 'bottom-right-container'
@@ -531,23 +528,6 @@ map.addControl(Title)
 
 
 //layerswitcher
-
-var layerSwitcher = new ol.control.LayerSwitcher({
-    activationMode: 'click',
-	startActive: true,
-	tipLabel: "Layers",
-    target: 'top-right-container',
-	collapseLabel: '»',
-	collapseTipLabel: 'Close'
-    });
-map.addControl(layerSwitcher);
-if (hasTouchScreen || isSmallScreen) {
-	document.addEventListener('DOMContentLoaded', function() {
-		setTimeout(function() {
-			layerSwitcher.hidePanel();
-		}, 500);
-	});	
-}
 
 
 
