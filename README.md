@@ -8,7 +8,7 @@ Elles permettent de visualiser le niveau de la mer sur nos spots favoris (pour l
 Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur.  
 Pour Plougrescant : https://yannpir.github.io/Maree/Plougrescant/  
 Pour Loguivy-de-la-Mer : https://yannpir.github.io/Maree/Loguivy/  
-Le lien est juste une manière directe d'ouvrir le fichier "index.hmtl" dans les dossiers du site d'escalalde en question.
+Le lien est juste une manière directe d'ouvrir le fichier "index.hmtl" dans les dossiers du site d'escalade en question.
 
 Quant à la lecture des données : un slider permet de visualiser la marée avec la hauteur de l'eau indiquée en-dessous.
 Les mesures sont basées sur le zéro hydrographique de port aux alentours (Port-Béni pour Plougrescant, et Bréhat pour Loguivy).
