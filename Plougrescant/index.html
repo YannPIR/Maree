@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="./resources/qgis2web.css">
         <style>
         html, body {
-            background-color: #a3c9ed;
+            background-color: #bcdaf5;
         }
         .ol-control > * {
             background-color: #f8f8f8!important;
@@ -43,116 +43,249 @@
             margin: 0;
         }
         </style>
-        <title>Marée de Plougrescant</title>
+        <title>Plougrescant</title>
     </head>
     <body>
-    <!-- Carte -->
-    <div id="map">
-        <div id="popup" class="ol-popup">
-            <a href="#" id="popup-closer" class="ol-popup-closer"></a>
-            <div id="popup-content"></div>
-        </div>
-    </div>
-
-    <!-- Slider pour sélectionner un niveau -->
-    <div id="niveau-slider" 
-         style="position:absolute; top:120px; right:10px; 
-                background:white; padding:10px; z-index:9999; border-radius:6px;">
-        <input type="range" min="1" max="8" value="1" id="sliderNiveau">
-    </div>
 	
-	<div id="hauteurDisplay" 
-     style="position:absolute; top:180px; right:10px; 
-            background:white; padding:10px; z-index:9999; border-radius:6px;">
-    Hauteur mer: <span id="hauteurValue">-</span> m
-	</div>
+	<div id="controls" 
+     style="position:absolute; top:10px; right:10px; 
+            background:white; padding:10px; z-index:9999; 
+            border-radius:6px; box-shadow:0 0 5px rgba(0,0,0,0.2);
+            display:flex; flex-direction:column; gap:8px;">
 
-    <!-- Scripts nécessaires -->
-    <script src="resources/qgis2web_expressions.js"></script>
-    <script src="resources/proj4.js"></script>
-    <script>proj4.defs('EPSG:4326','+proj=longlat +datum=WGS84 +no_defs');</script>
-    <script src="./resources/functions.js"></script>
-    <script src="./resources/ol.js"></script>
-    <script src="./resources/ol-layerswitcher.js"></script>
-    <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+    <div>
+        <input
+            type="datetime-local"
+            id="timeInput"
+            style="width:100%;"
+            min="2026-04-01T01:24"
+            max="2026-10-01T00:01">
+    </div>
 
-    <!-- Layers -->
-    <script src="layers/Niveau_4_2.js"></script>
-    <script src="layers/Niveau_3_3.js"></script>
-    <script src="layers/Niveau_2_4.js"></script>
-    <script src="layers/Niveau_1_5.js"></script>
-    <script src="layers/Niveau_0_6.js"></script>
-    <script src="layers/Niveau_3_7.js"></script>
-    <script src="layers/Niveau_2_8.js"></script>
-    <script src="layers/Niveau_1_9.js"></script>
-    <script src="layers/spot_10.js"></script>
+    <div>
+        <label>Heure :</label>
+        <input id="hourSlider" 
+               type="range" 
+               min="0" 
+               max="23.99" 
+               step="0.01" 
+               value="12"
+               style="width:100%;">
+    </div>
 
-    <!-- Styles -->
-    <script src="styles/Niveau_4_2_style.js"></script>
-    <script src="styles/Niveau_3_3_style.js"></script>
-    <script src="styles/Niveau_2_4_style.js"></script>
-    <script src="styles/Niveau_1_5_style.js"></script>
-    <script src="styles/Niveau_0_6_style.js"></script>
-    <script src="styles/Niveau_3_7_style.js"></script>
-    <script src="styles/Niveau_2_8_style.js"></script>
-    <script src="styles/Niveau_1_9_style.js"></script>
-    <script src="styles/spot_10_style.js"></script>
+    <div id="hauteurDisplay">
+        Hauteur mer: <span id="hauteurValue">-</span> m
+    </div>
 
-    <!-- Layers.js -->
-    <script src="./layers/layers.js" type="text/javascript"></script>
+</div>
 
-    <script src="./resources/Autolinker.min.js"></script>
-    <script src="./resources/qgis2web.js"></script>
+        <div id="map">
+            <div id="popup" class="ol-popup">
+                <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+                <div id="popup-content"></div>
+            </div>
+        </div>
+        <script src="resources/qgis2web_expressions.js"></script>
+        <script src="./resources/functions.js"></script>
+        <script src="./resources/ol.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.9.0/proj4.js"></script>
+		<script src="resources/proj4.js"></script>
+        <script src="./resources/ol-layerswitcher.js"></script>
+        <script src="resources/photon-geocoder-autocomplete.min.js"></script>
+        <script src="layers/Niveau_0_1.js"></script><script src="layers/Niveau_1_2.js"></script><script src="layers/Niveau_2_3.js"></script><script src="layers/Niveau_3_4.js"></script><script src="layers/Niveau_4_5.js"></script><script src="layers/Niveau_5_6.js"></script><script src="layers/Niveau_6_7.js"></script><script src="layers/Niveau_7_8.js"></script><script src="layers/Niveau_8_9.js"></script><script src="layers/Niveau_9_10.js"></script><script src="layers/Niveau_10_11.js"></script><script src="layers/Niveau_11_12.js"></script><script src="layers/Niveau_12_13.js"></script><script src="layers/Niveau_13_14.js"></script><script src="layers/Niveau_14_15.js"></script><script src="layers/Niveau_15_16.js"></script><script src="layers/Niveau_16_17.js"></script><script src="layers/Niveau_17_18.js"></script><script src="layers/Niveau_18_19.js"></script><script src="layers/Niveau_19_20.js"></script><script src="layers/Niveau_20_21.js"></script><script src="layers/Niveau_21_22.js"></script><script src="layers/Niveau_22_23.js"></script><script src="layers/Niveau_23_24.js"></script><script src="layers/Niveau_24_25.js"></script><script src="layers/Niveau_25_26.js"></script><script src="layers/Niveau_26_27.js"></script><script src="layers/Niveau_27_28.js"></script><script src="layers/Niveau_28_29.js"></script><script src="layers/Niveau_29_30.js"></script><script src="layers/Niveau_30_31.js"></script><script src="layers/Niveau_31_32.js"></script><script src="layers/Niveau_32_33.js"></script><script src="layers/Niveau_33_34.js"></script><script src="layers/Niveau_34_35.js"></script><script src="layers/Niveau_35_36.js"></script><script src="layers/Niveau_36_37.js"></script><script src="layers/Niveau_37_38.js"></script><script src="layers/Niveau_38_39.js"></script><script src="layers/Niveau_39_40.js"></script><script src="layers/Niveau_40_41.js"></script><script src="layers/Niveau_41_42.js"></script><script src="layers/Niveau_42_43.js"></script><script src="layers/Niveau_43_44.js"></script><script src="layers/Niveau_44_45.js"></script><script src="layers/Niveau_45_46.js"></script><script src="layers/Niveau_46_47.js"></script><script src="layers/Niveau_47_48.js"></script><script src="layers/Niveau_48_49.js"></script><script src="layers/Niveau_49_50.js"></script><script src="layers/Niveau_50_51.js"></script><script src="layers/Niveau_51_52.js"></script><script src="layers/Niveau_52_53.js"></script><script src="layers/Niveau_53_54.js"></script><script src="layers/Niveau_54_55.js"></script><script src="layers/Niveau_55_56.js"></script><script src="layers/Niveau_56_57.js"></script><script src="layers/Niveau_57_58.js"></script><script src="layers/Niveau_58_59.js"></script><script src="layers/Niveau_59_60.js"></script><script src="layers/Niveau_60_61.js"></script><script src="layers/spots_62.js"></script>
+        <script src="styles/Niveau_0_1_style.js"></script><script src="styles/Niveau_1_2_style.js"></script><script src="styles/Niveau_2_3_style.js"></script><script src="styles/Niveau_3_4_style.js"></script><script src="styles/Niveau_4_5_style.js"></script><script src="styles/Niveau_5_6_style.js"></script><script src="styles/Niveau_6_7_style.js"></script><script src="styles/Niveau_7_8_style.js"></script><script src="styles/Niveau_8_9_style.js"></script><script src="styles/Niveau_9_10_style.js"></script><script src="styles/Niveau_10_11_style.js"></script><script src="styles/Niveau_11_12_style.js"></script><script src="styles/Niveau_12_13_style.js"></script><script src="styles/Niveau_13_14_style.js"></script><script src="styles/Niveau_14_15_style.js"></script><script src="styles/Niveau_15_16_style.js"></script><script src="styles/Niveau_16_17_style.js"></script><script src="styles/Niveau_17_18_style.js"></script><script src="styles/Niveau_18_19_style.js"></script><script src="styles/Niveau_19_20_style.js"></script><script src="styles/Niveau_20_21_style.js"></script><script src="styles/Niveau_21_22_style.js"></script><script src="styles/Niveau_22_23_style.js"></script><script src="styles/Niveau_23_24_style.js"></script><script src="styles/Niveau_24_25_style.js"></script><script src="styles/Niveau_25_26_style.js"></script><script src="styles/Niveau_26_27_style.js"></script><script src="styles/Niveau_27_28_style.js"></script><script src="styles/Niveau_28_29_style.js"></script><script src="styles/Niveau_29_30_style.js"></script><script src="styles/Niveau_30_31_style.js"></script><script src="styles/Niveau_31_32_style.js"></script><script src="styles/Niveau_32_33_style.js"></script><script src="styles/Niveau_33_34_style.js"></script><script src="styles/Niveau_34_35_style.js"></script><script src="styles/Niveau_35_36_style.js"></script><script src="styles/Niveau_36_37_style.js"></script><script src="styles/Niveau_37_38_style.js"></script><script src="styles/Niveau_38_39_style.js"></script><script src="styles/Niveau_39_40_style.js"></script><script src="styles/Niveau_40_41_style.js"></script><script src="styles/Niveau_41_42_style.js"></script><script src="styles/Niveau_42_43_style.js"></script><script src="styles/Niveau_43_44_style.js"></script><script src="styles/Niveau_44_45_style.js"></script><script src="styles/Niveau_45_46_style.js"></script><script src="styles/Niveau_46_47_style.js"></script><script src="styles/Niveau_47_48_style.js"></script><script src="styles/Niveau_48_49_style.js"></script><script src="styles/Niveau_49_50_style.js"></script><script src="styles/Niveau_50_51_style.js"></script><script src="styles/Niveau_51_52_style.js"></script><script src="styles/Niveau_52_53_style.js"></script><script src="styles/Niveau_53_54_style.js"></script><script src="styles/Niveau_54_55_style.js"></script><script src="styles/Niveau_55_56_style.js"></script><script src="styles/Niveau_56_57_style.js"></script><script src="styles/Niveau_57_58_style.js"></script><script src="styles/Niveau_58_59_style.js"></script><script src="styles/Niveau_59_60_style.js"></script><script src="styles/Niveau_60_61_style.js"></script><script src="styles/spots_62_style.js"></script>
+        <script src="./layers/layers.js" type="text/javascript"></script> 
+        <script src="./resources/Autolinker.min.js"></script>
+        <script src="./resources/qgis2web.js"></script>        
+    </body>
+	
+	<script>
+document.addEventListener("DOMContentLoaded", function() {
 
-    <!-- Code JS pour le slider, exécuté après le chargement du DOM -->
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-		// Tableau des 8 niveaux
-		var niveaux = [
-			lyr_Niveau_4_2,
-			lyr_Niveau_3_3,
-			lyr_Niveau_2_4,
-			lyr_Niveau_1_5,
-			lyr_Niveau_0_6,
-			lyr_Niveau_1_9,
-			lyr_Niveau_2_8,
-			lyr_Niveau_3_7
-		];
+    // 👉 tes couches QGIS2Web
+    var niveaux = [
+        lyr_Niveau_0_1,
+        lyr_Niveau_1_2,
+        lyr_Niveau_2_3,
+        lyr_Niveau_3_4,
+        lyr_Niveau_4_5,
+        lyr_Niveau_5_6,
+        lyr_Niveau_6_7,
+        lyr_Niveau_7_8,
+        lyr_Niveau_8_9,
+        lyr_Niveau_9_10,
+        lyr_Niveau_10_11,
+        lyr_Niveau_11_12,
+        lyr_Niveau_12_13,
+        lyr_Niveau_13_14,
+        lyr_Niveau_14_15,
+        lyr_Niveau_15_16,
+        lyr_Niveau_16_17,
+        lyr_Niveau_17_18,
+        lyr_Niveau_18_19,
+        lyr_Niveau_19_20,
+        lyr_Niveau_20_21,
+        lyr_Niveau_21_22,
+        lyr_Niveau_22_23,
+        lyr_Niveau_23_24,
+        lyr_Niveau_24_25,
+        lyr_Niveau_25_26,
+        lyr_Niveau_26_27,
+        lyr_Niveau_27_28,
+        lyr_Niveau_28_29,
+        lyr_Niveau_29_30,
+        lyr_Niveau_30_31,
+        lyr_Niveau_31_32,
+        lyr_Niveau_32_33,
+        lyr_Niveau_33_34,
+        lyr_Niveau_34_35,
+        lyr_Niveau_35_36,
+        lyr_Niveau_36_37,
+        lyr_Niveau_37_38,
+        lyr_Niveau_38_39,
+        lyr_Niveau_39_40,
+        lyr_Niveau_40_41,
+        lyr_Niveau_41_42,
+        lyr_Niveau_42_43,
+        lyr_Niveau_43_44,
+        lyr_Niveau_44_45,
+        lyr_Niveau_45_46,
+        lyr_Niveau_46_47,
+        lyr_Niveau_47_48,
+        lyr_Niveau_48_49,
+        lyr_Niveau_49_50,
+        lyr_Niveau_50_51,
+        lyr_Niveau_51_52,
+        lyr_Niveau_52_53,
+        lyr_Niveau_53_54,
+        lyr_Niveau_54_55,
+        lyr_Niveau_55_56,
+        lyr_Niveau_56_57,
+        lyr_Niveau_57_58,
+        lyr_Niveau_58_59,
+        lyr_Niveau_59_60,
+        lyr_Niveau_60_61
+    ];
 
-		// Élément où afficher la valeur
-		var display = document.getElementById("hauteurValue");
+    // 👉 cacher toutes les couches sauf la première
+    niveaux.forEach((layer, i) => {
+        layer.setVisible(i === 0);
+    });
 
-		// Initialisation : seul le premier niveau est visible
-		niveaux.forEach(function(layer, i) {
-			layer.setVisible(i === 0);
-		});
+    // 👉 données marée
+    let marees = [];
 
-		// Affichage initial
-		updateDisplay(0);
+    fetch("maree.json")
+        .then(res => res.json())
+        .then(data => marees = data);
 
-		// Sélection du slider
-		var slider = document.getElementById("sliderNiveau");
-		slider.addEventListener("input", function() {
-			var index = parseInt(this.value) - 1; // -1 car tableau commence à 0
-			niveaux.forEach(function(layer, i) {
-				layer.setVisible(i === index);
-			});
-			updateDisplay(index); // <- important !
-		});
+    // 👉 format date local
+    function formatLocalDate(date) {
+        const pad = n => String(n).padStart(2, '0');
 
-		function updateDisplay(index) {
-			var layer = niveaux[index];
-			// On suppose qu’il n’y a qu’une seule feature par couche
-			var features = layer.getSource().getFeatures();
-			if (features.length > 0) {
-				var val = features[0].get('Hauteur_mer');
-				display.textContent = val;
-			} else {
-				display.textContent = '-';
-			}
-		}
-	});
+        return date.getFullYear() + "-" +
+            pad(date.getMonth() + 1) + "-" +
+            pad(date.getDate()) + "T" +
+            pad(date.getHours()) + ":" +
+            pad(date.getMinutes());
+    }
 
-    </script>
-</body>
+    // 👉 trouve la marée la plus proche
+    function findClosestDate(target, marees) {
+        const targetTime = new Date(target).getTime();
+
+        return marees.reduce((closest, current) => {
+            return Math.abs(new Date(current.datetime) - targetTime) <
+                   Math.abs(new Date(closest.datetime) - targetTime)
+                ? current : closest;
+        });
+    }
+
+    // 👉 trouver la couche correspondante
+    function findClosestLayer(level, layers) {
+        let bestLayer = null;
+        let bestDiff = Infinity;
+
+        layers.forEach(layer => {
+            const source = layer.getSource();
+            if (!source) return;
+
+            const features = source.getFeatures();
+            if (!features.length) return;
+
+            const h = features[0].get('hauteur');
+            if (h === undefined) return;
+
+            const diff = Math.abs(h - level);
+
+            if (diff < bestDiff) {
+                bestDiff = diff;
+                bestLayer = layer;
+            }
+        });
+
+        return bestLayer;
+    }
+
+    // 👉 mise à jour de la carte
+    function updateMap(datetimeInput) {
+        if (!marees.length) return;
+
+        const maree = findClosestDate(datetimeInput, marees);
+        const level = maree.level;
+
+        const bestLayer = findClosestLayer(level, niveaux);
+
+        // cacher toutes les couches
+        niveaux.forEach(l => l.setVisible(false));
+
+        // afficher la bonne couche
+        if (bestLayer) {
+            bestLayer.setVisible(true);
+        }
+
+        // afficher hauteur (1 décimale)
+        document.getElementById("hauteurValue").textContent = level.toFixed(1);
+
+        console.log("Date demandée :", datetimeInput);
+        console.log("Date de marée utilisée :", maree.datetime);
+        console.log("Hauteur réelle :", level);
+    }
+
+    // 👉 éléments
+    const timeInput = document.getElementById("timeInput");
+    const hourSlider = document.getElementById("hourSlider");
+
+    // 👉 datetime → carte
+    timeInput.addEventListener("change", function(e) {
+        const date = new Date(e.target.value);
+
+        if (!isNaN(date)) {
+            const hours = date.getHours() + date.getMinutes() / 60;
+            hourSlider.value = hours;
+        }
+
+        updateMap(e.target.value);
+    });
+
+    // 👉 slider → datetime
+    hourSlider.addEventListener("input", function() {
+        const date = new Date(timeInput.value);
+
+        if (isNaN(date)) return;
+
+        const hours = parseFloat(hourSlider.value);
+
+        date.setHours(0, 0, 0, 0);
+        date.setHours(Math.floor(hours));
+        date.setMinutes(Math.floor((hours % 1) * 60));
+
+        timeInput.value = formatLocalDate(date);
+
+        updateMap(timeInput.value);
+    });
+
+});
+</script>
+
 </html>

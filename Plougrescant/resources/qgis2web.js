@@ -4,15 +4,12 @@ var map = new ol.Map({
     renderer: 'canvas',
     layers: layersList,
     view: new ol.View({
-         maxZoom: 18, minZoom: 14, projection: new ol.proj.Projection({
-            code: 'EPSG:4326',
-            //extent: [-3.248573, 48.853403, -3.215060, 48.876566],
-            units: 'degrees'})
+         maxZoom: 22, minZoom: 14
     })
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([-3.228461, 48.865756, -3.219120, 48.871545], map.getSize());
+map.getView().fit([-361629.709646, 6249913.200273, -357899.930588, 6253443.937679], map.getSize());
 
 //full zooms only
 map.getView().setProperties({constrainResolution: true});
@@ -294,7 +291,7 @@ function onPointerMove(evt) {
                     highlightStyle = new ol.style.Style({
                         image: new ol.style.Circle({
                             fill: new ol.style.Fill({
-                                color: "rgba(211, 211, 17, 1.00)"
+                                color: "rgba(255, 255, 0, 1.00)"
                             }),
                             radius: radius
                         })
@@ -305,7 +302,7 @@ function onPointerMove(evt) {
 
                     highlightStyle = new ol.style.Style({
                         stroke: new ol.style.Stroke({
-                            color: 'rgba(211, 211, 17, 1.00)',
+                            color: 'rgba(255, 255, 0, 1.00)',
                             lineDash: null,
                             width: featureWidth
                         })
@@ -314,7 +311,7 @@ function onPointerMove(evt) {
                 } else {
                     highlightStyle = new ol.style.Style({
                         fill: new ol.style.Fill({
-                            color: 'rgba(211, 211, 17, 1.00)'
+                            color: 'rgba(255, 255, 0, 1.00)'
                         })
                     })
                 }
@@ -501,7 +498,7 @@ var Title = new ol.control.Control({
     element: (() => {
         var titleElement = document.createElement('div');
         titleElement.className = 'bottom-right-title ol-control';
-        titleElement.innerHTML = '<h2 class="project-title">Marée de Plougrescant</h2>';
+        titleElement.innerHTML = '<h2 class="project-title">Plougrescant</h2>';
         return titleElement;
     })(),
     target: 'bottom-right-container'
@@ -531,23 +528,6 @@ map.addControl(Title)
 
 
 //layerswitcher
-
-var layerSwitcher = new ol.control.LayerSwitcher({
-    activationMode: 'click',
-	startActive: true,
-	tipLabel: "Layers",
-    target: 'top-right-container',
-	collapseLabel: '»',
-	collapseTipLabel: 'Close'
-    });
-map.addControl(layerSwitcher);
-if (hasTouchScreen || isSmallScreen) {
-	document.addEventListener('DOMContentLoaded', function() {
-		setTimeout(function() {
-			layerSwitcher.hidePanel();
-		}, 500);
-	});	
-}
 
 
 
