@@ -8,10 +8,11 @@ Elles permettent de visualiser le niveau de la mer dans les mois à venir sur no
 Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur.  
 Pour Plougrescant : https://yannpir.github.io/Maree/Plougrescant/  
 Pour Loguivy-de-la-Mer : https://yannpir.github.io/Maree/Loguivy/  
+Pour Trégastel & Ploumanac'h : https://yannpir.github.io/Maree/Tregastel/  
 Le lien est juste une manière directe d'ouvrir le fichier "index.hmtl" dans les dossiers du site d'escalade en question.
 
-Quant à la lecture des données : un calendrier permet de renseigner la date et l'horaire souhaités. Les prévisions vont du 1er avril 2026 au 1er octobre 2026.
-Les mesures sont basées sur le zéro hydrographique de port aux alentours (Port-Béni pour Plougrescant, et Bréhat pour Loguivy).
+Quant à la lecture des données : un calendrier permet de renseigner la date et l'horaire souhaités. Les prévisions vont du 1er mars 2026 au 1er octobre 2026.
+Les mesures sont basées sur le zéro hydrographique de port aux alentours.
 Cela devrait être suffisamment cohérent avec les sites de relevée de marées type maree.info .  
 
 
