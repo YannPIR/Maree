@@ -949,8 +949,42 @@ var lyr_spots_62 = new ol.layer.Vector({
                 title: '<img src="styles/legend/spots_62.png" /> spots'
             });
 
-lyr_Vuesatellite_0.setVisible(true);lyr_Niveau_0_1.setVisible(false);lyr_Niveau_1_2.setVisible(false);lyr_Niveau_2_3.setVisible(false);lyr_Niveau_3_4.setVisible(false);lyr_Niveau_4_5.setVisible(false);lyr_Niveau_5_6.setVisible(false);lyr_Niveau_6_7.setVisible(false);lyr_Niveau_7_8.setVisible(false);lyr_Niveau_8_9.setVisible(false);lyr_Niveau_9_10.setVisible(false);lyr_Niveau_10_11.setVisible(false);lyr_Niveau_11_12.setVisible(false);lyr_Niveau_12_13.setVisible(false);lyr_Niveau_13_14.setVisible(false);lyr_Niveau_14_15.setVisible(false);lyr_Niveau_15_16.setVisible(false);lyr_Niveau_16_17.setVisible(false);lyr_Niveau_17_18.setVisible(false);lyr_Niveau_18_19.setVisible(false);lyr_Niveau_19_20.setVisible(false);lyr_Niveau_20_21.setVisible(false);lyr_Niveau_21_22.setVisible(false);lyr_Niveau_22_23.setVisible(false);lyr_Niveau_23_24.setVisible(false);lyr_Niveau_24_25.setVisible(false);lyr_Niveau_25_26.setVisible(false);lyr_Niveau_26_27.setVisible(false);lyr_Niveau_27_28.setVisible(false);lyr_Niveau_28_29.setVisible(false);lyr_Niveau_29_30.setVisible(false);lyr_Niveau_30_31.setVisible(false);lyr_Niveau_31_32.setVisible(false);lyr_Niveau_32_33.setVisible(false);lyr_Niveau_33_34.setVisible(false);lyr_Niveau_34_35.setVisible(false);lyr_Niveau_35_36.setVisible(false);lyr_Niveau_36_37.setVisible(false);lyr_Niveau_37_38.setVisible(false);lyr_Niveau_38_39.setVisible(false);lyr_Niveau_39_40.setVisible(false);lyr_Niveau_40_41.setVisible(false);lyr_Niveau_41_42.setVisible(false);lyr_Niveau_42_43.setVisible(false);lyr_Niveau_43_44.setVisible(false);lyr_Niveau_44_45.setVisible(false);lyr_Niveau_45_46.setVisible(false);lyr_Niveau_46_47.setVisible(false);lyr_Niveau_47_48.setVisible(false);lyr_Niveau_48_49.setVisible(false);lyr_Niveau_49_50.setVisible(false);lyr_Niveau_50_51.setVisible(false);lyr_Niveau_51_52.setVisible(false);lyr_Niveau_52_53.setVisible(false);lyr_Niveau_53_54.setVisible(false);lyr_Niveau_54_55.setVisible(false);lyr_Niveau_55_56.setVisible(false);lyr_Niveau_56_57.setVisible(false);lyr_Niveau_57_58.setVisible(false);lyr_Niveau_58_59.setVisible(false);lyr_Niveau_59_60.setVisible(false);lyr_Niveau_60_61.setVisible(true);lyr_spots_62.setVisible(true);
-var layersList = [lyr_Vuesatellite_0,lyr_Niveau_0_1,lyr_Niveau_1_2,lyr_Niveau_2_3,lyr_Niveau_3_4,lyr_Niveau_4_5,lyr_Niveau_5_6,lyr_Niveau_6_7,lyr_Niveau_7_8,lyr_Niveau_8_9,lyr_Niveau_9_10,lyr_Niveau_10_11,lyr_Niveau_11_12,lyr_Niveau_12_13,lyr_Niveau_13_14,lyr_Niveau_14_15,lyr_Niveau_15_16,lyr_Niveau_16_17,lyr_Niveau_17_18,lyr_Niveau_18_19,lyr_Niveau_19_20,lyr_Niveau_20_21,lyr_Niveau_21_22,lyr_Niveau_22_23,lyr_Niveau_23_24,lyr_Niveau_24_25,lyr_Niveau_25_26,lyr_Niveau_26_27,lyr_Niveau_27_28,lyr_Niveau_28_29,lyr_Niveau_29_30,lyr_Niveau_30_31,lyr_Niveau_31_32,lyr_Niveau_32_33,lyr_Niveau_33_34,lyr_Niveau_34_35,lyr_Niveau_35_36,lyr_Niveau_36_37,lyr_Niveau_37_38,lyr_Niveau_38_39,lyr_Niveau_39_40,lyr_Niveau_40_41,lyr_Niveau_41_42,lyr_Niveau_42_43,lyr_Niveau_43_44,lyr_Niveau_44_45,lyr_Niveau_45_46,lyr_Niveau_46_47,lyr_Niveau_47_48,lyr_Niveau_48_49,lyr_Niveau_49_50,lyr_Niveau_50_51,lyr_Niveau_51_52,lyr_Niveau_52_53,lyr_Niveau_53_54,lyr_Niveau_54_55,lyr_Niveau_55_56,lyr_Niveau_56_57,lyr_Niveau_57_58,lyr_Niveau_58_59,lyr_Niveau_59_60,lyr_Niveau_60_61,lyr_spots_62];
+var format_Parking_1 = new ol.format.GeoJSON();
+var features_Parking_1 = format_Parking_1.readFeatures(json_Parking_1, 
+            {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
+var jsonSource_Parking_1 = new ol.source.Vector({
+    attributions: ' ',
+});
+jsonSource_Parking_1.addFeatures(features_Parking_1);
+var lyr_Parking_1 = new ol.layer.Vector({
+                declutter: false,
+                source:jsonSource_Parking_1, 
+                style: style_Parking_1,
+                popuplayertitle: 'Parking',
+                interactive: true,
+                title: '<img src="styles/legend/Parking_1.png" /> Parking'
+            });
+var format_Chemin_2 = new ol.format.GeoJSON();
+var features_Chemin_2 = format_Chemin_2.readFeatures(json_Chemin_2, 
+            {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
+var jsonSource_Chemin_2 = new ol.source.Vector({
+    attributions: ' ',
+});
+jsonSource_Chemin_2.addFeatures(features_Chemin_2);
+var lyr_Chemin_2 = new ol.layer.Vector({
+                declutter: false,
+                source:jsonSource_Chemin_2, 
+                style: style_Chemin_2,
+                popuplayertitle: 'Chemin',
+                interactive: true,
+                title: '<img src="styles/legend/Chemin_2.png" /> Chemin'
+            });
+			
+
+lyr_Parking_1.setVisible(true);lyr_Chemin_2.setVisible(true);lyr_Vuesatellite_0.setVisible(true);lyr_Niveau_0_1.setVisible(false);lyr_Niveau_1_2.setVisible(false);lyr_Niveau_2_3.setVisible(false);lyr_Niveau_3_4.setVisible(false);lyr_Niveau_4_5.setVisible(false);lyr_Niveau_5_6.setVisible(false);lyr_Niveau_6_7.setVisible(false);lyr_Niveau_7_8.setVisible(false);lyr_Niveau_8_9.setVisible(false);lyr_Niveau_9_10.setVisible(false);lyr_Niveau_10_11.setVisible(false);lyr_Niveau_11_12.setVisible(false);lyr_Niveau_12_13.setVisible(false);lyr_Niveau_13_14.setVisible(false);lyr_Niveau_14_15.setVisible(false);lyr_Niveau_15_16.setVisible(false);lyr_Niveau_16_17.setVisible(false);lyr_Niveau_17_18.setVisible(false);lyr_Niveau_18_19.setVisible(false);lyr_Niveau_19_20.setVisible(false);lyr_Niveau_20_21.setVisible(false);lyr_Niveau_21_22.setVisible(false);lyr_Niveau_22_23.setVisible(false);lyr_Niveau_23_24.setVisible(false);lyr_Niveau_24_25.setVisible(false);lyr_Niveau_25_26.setVisible(false);lyr_Niveau_26_27.setVisible(false);lyr_Niveau_27_28.setVisible(false);lyr_Niveau_28_29.setVisible(false);lyr_Niveau_29_30.setVisible(false);lyr_Niveau_30_31.setVisible(false);lyr_Niveau_31_32.setVisible(false);lyr_Niveau_32_33.setVisible(false);lyr_Niveau_33_34.setVisible(false);lyr_Niveau_34_35.setVisible(false);lyr_Niveau_35_36.setVisible(false);lyr_Niveau_36_37.setVisible(false);lyr_Niveau_37_38.setVisible(false);lyr_Niveau_38_39.setVisible(false);lyr_Niveau_39_40.setVisible(false);lyr_Niveau_40_41.setVisible(false);lyr_Niveau_41_42.setVisible(false);lyr_Niveau_42_43.setVisible(false);lyr_Niveau_43_44.setVisible(false);lyr_Niveau_44_45.setVisible(false);lyr_Niveau_45_46.setVisible(false);lyr_Niveau_46_47.setVisible(false);lyr_Niveau_47_48.setVisible(false);lyr_Niveau_48_49.setVisible(false);lyr_Niveau_49_50.setVisible(false);lyr_Niveau_50_51.setVisible(false);lyr_Niveau_51_52.setVisible(false);lyr_Niveau_52_53.setVisible(false);lyr_Niveau_53_54.setVisible(false);lyr_Niveau_54_55.setVisible(false);lyr_Niveau_55_56.setVisible(false);lyr_Niveau_56_57.setVisible(false);lyr_Niveau_57_58.setVisible(false);lyr_Niveau_58_59.setVisible(false);lyr_Niveau_59_60.setVisible(false);lyr_Niveau_60_61.setVisible(true);lyr_spots_62.setVisible(true);
+var layersList = [lyr_Vuesatellite_0,lyr_Parking_1,lyr_Chemin_2,lyr_Niveau_0_1,lyr_Niveau_1_2,lyr_Niveau_2_3,lyr_Niveau_3_4,lyr_Niveau_4_5,lyr_Niveau_5_6,lyr_Niveau_6_7,lyr_Niveau_7_8,lyr_Niveau_8_9,lyr_Niveau_9_10,lyr_Niveau_10_11,lyr_Niveau_11_12,lyr_Niveau_12_13,lyr_Niveau_13_14,lyr_Niveau_14_15,lyr_Niveau_15_16,lyr_Niveau_16_17,lyr_Niveau_17_18,lyr_Niveau_18_19,lyr_Niveau_19_20,lyr_Niveau_20_21,lyr_Niveau_21_22,lyr_Niveau_22_23,lyr_Niveau_23_24,lyr_Niveau_24_25,lyr_Niveau_25_26,lyr_Niveau_26_27,lyr_Niveau_27_28,lyr_Niveau_28_29,lyr_Niveau_29_30,lyr_Niveau_30_31,lyr_Niveau_31_32,lyr_Niveau_32_33,lyr_Niveau_33_34,lyr_Niveau_34_35,lyr_Niveau_35_36,lyr_Niveau_36_37,lyr_Niveau_37_38,lyr_Niveau_38_39,lyr_Niveau_39_40,lyr_Niveau_40_41,lyr_Niveau_41_42,lyr_Niveau_42_43,lyr_Niveau_43_44,lyr_Niveau_44_45,lyr_Niveau_45_46,lyr_Niveau_46_47,lyr_Niveau_47_48,lyr_Niveau_48_49,lyr_Niveau_49_50,lyr_Niveau_50_51,lyr_Niveau_51_52,lyr_Niveau_52_53,lyr_Niveau_53_54,lyr_Niveau_54_55,lyr_Niveau_55_56,lyr_Niveau_56_57,lyr_Niveau_57_58,lyr_Niveau_58_59,lyr_Niveau_59_60,lyr_Niveau_60_61,lyr_spots_62];
+lyr_Parking_1.set('fieldAliases', {'fid': 'fid', 'Nom': 'Nom', });
+lyr_Chemin_2.set('fieldAliases', {'fid': 'fid', 'Nom': 'Nom', });
 lyr_Niveau_0_1.set('fieldAliases', {'fid': 'fid', 'hauteur': 'hauteur', });
 lyr_Niveau_1_2.set('fieldAliases', {'fid': 'fid', 'hauteur': 'hauteur', });
 lyr_Niveau_2_3.set('fieldAliases', {'fid': 'fid', 'hauteur': 'hauteur', });
@@ -1013,6 +1047,8 @@ lyr_Niveau_58_59.set('fieldAliases', {'fid': 'fid', 'hauteur': 'hauteur', });
 lyr_Niveau_59_60.set('fieldAliases', {'fid': 'fid', 'hauteur': 'hauteur', });
 lyr_Niveau_60_61.set('fieldAliases', {'fid': 'fid', 'hauteur': 'hauteur', });
 lyr_spots_62.set('fieldAliases', {'fid': 'fid', 'Spot': 'Spot', 'Voies': 'Voies', });
+lyr_Parking_1.set('fieldImages', {'fid': 'TextEdit', 'Nom': 'TextEdit', });
+lyr_Chemin_2.set('fieldImages', {'fid': 'TextEdit', 'Nom': 'TextEdit', });
 lyr_Niveau_0_1.set('fieldImages', {'fid': '', 'hauteur': '', });
 lyr_Niveau_1_2.set('fieldImages', {'fid': '', 'hauteur': '', });
 lyr_Niveau_2_3.set('fieldImages', {'fid': '', 'hauteur': '', });
@@ -1075,6 +1111,8 @@ lyr_Niveau_58_59.set('fieldImages', {'fid': '', 'hauteur': '', });
 lyr_Niveau_59_60.set('fieldImages', {'fid': '', 'hauteur': '', });
 lyr_Niveau_60_61.set('fieldImages', {'fid': '', 'hauteur': '', });
 lyr_spots_62.set('fieldImages', {'fid': '', 'Spot': '', 'Voies': '', });
+lyr_Parking_1.set('fieldLabels', {'fid': 'hidden field', 'Nom': 'no label', });
+lyr_Chemin_2.set('fieldLabels', {'fid': 'hidden field', 'Nom': 'no label', });
 lyr_Niveau_0_1.set('fieldLabels', {'fid': 'no label', 'hauteur': 'no label', });
 lyr_Niveau_1_2.set('fieldLabels', {'fid': 'no label', 'hauteur': 'no label', });
 lyr_Niveau_2_3.set('fieldLabels', {'fid': 'no label', 'hauteur': 'no label', });
@@ -1136,7 +1174,8 @@ lyr_Niveau_57_58.set('fieldLabels', {'fid': 'no label', 'hauteur': 'no label', }
 lyr_Niveau_58_59.set('fieldLabels', {'fid': 'no label', 'hauteur': 'no label', });
 lyr_Niveau_59_60.set('fieldLabels', {'fid': 'no label', 'hauteur': 'no label', });
 lyr_Niveau_60_61.set('fieldLabels', {'fid': 'no label', 'hauteur': 'no label', });
-lyr_spots_62.set('fieldLabels', {'fid': 'hidden field', 'Spot': 'header label - visible with data', 'Voies': 'header label - visible with data', });
-lyr_spots_62.on('precompose', function(evt) {
+lyr_spots_62.set('fieldLabels', {'fid': 'hidden field', 'Spot': 'no label', 'Voies': 'header label - visible with data', });
+
+lyr_Chemin_2.on('precompose', function(evt) {
     evt.context.globalCompositeOperation = 'normal';
 });

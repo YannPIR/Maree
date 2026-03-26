@@ -2,6 +2,7 @@
 var map = new ol.Map({
     target: 'map',
     renderer: 'canvas',
+	controls: [],
     layers: layersList,
     view: new ol.View({
          maxZoom: 22, minZoom: 14

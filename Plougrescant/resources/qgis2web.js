@@ -2,6 +2,7 @@
 var map = new ol.Map({
     target: 'map',
     renderer: 'canvas',
+	controls: [],
     layers: layersList,
     view: new ol.View({
          maxZoom: 22, minZoom: 14
@@ -148,7 +149,7 @@ var featureOverlay = new ol.layer.Vector({
 });
 
 var doHighlight = false;
-var doHover = false;
+var doHover = true;
 
 function createPopupField(currentFeature, currentFeatureKeys, layer) {
     var popupText = '';
