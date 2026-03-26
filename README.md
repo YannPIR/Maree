@@ -5,16 +5,15 @@ Ce dépôt me sert à partager des cartes que j'ai réalisé sur QGIS dans mon t
 Elles permettent de visualiser le niveau de la mer dans les mois à venir sur nos spots favoris.
 
 ## Utilisation
-Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur.  
+Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur (il est possible, depuis une carte, d'accéder aux autres).  
 Pour Plougrescant : https://yannpir.github.io/Maree/Plougrescant/  
 Pour Loguivy-de-la-Mer : https://yannpir.github.io/Maree/Loguivy/  
 Pour Trégastel & Ploumanac'h : https://yannpir.github.io/Maree/Tregastel/  
-Le lien est juste une manière directe d'ouvrir le fichier "index.hmtl" dans les dossiers du site d'escalade en question.
-
+  
 Quant à la lecture des données : un calendrier permet de renseigner la date et l'horaire souhaités. Les prévisions vont du 1er mars 2026 au 1er octobre 2026.
-Les mesures sont basées sur le zéro hydrographique de port aux alentours.
+Les mesures sont basées sur le zéro hydrographique de port aux alentours.  
 Cela devrait être suffisamment cohérent avec les sites de relevée de marées type maree.info .  
-
+Si le chemin d'accès en jaune est sous l'eau, c'est que le spot n'est plus accessible (sans se mouiller les pieds).  
 
 ## Sources :
 **Vue satellite** : Ortho Littorale V3 - Ministère en charge de l’environnement  
