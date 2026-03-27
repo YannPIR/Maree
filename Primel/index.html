@@ -96,11 +96,18 @@
     gap: 8px;
 }
 
-/* Mobile : empile et centre horizontalement */
+/* Mobile : controls reste en haut, liens en bas */
 @media (max-width: 600px) {
-    #controls, #liens {
-        top: auto;
-        bottom: 10px;
+    #controls {
+        top: 10px;       /* reste en haut */
+        right: 50%;      
+        transform: translateX(50%);  /* centré horizontalement */
+        width: 90%;
+        max-width: 90vw;
+    }
+
+    #liens {
+        bottom: 10px;    /* positionné en bas */
         left: 50%;
         transform: translateX(-50%);
         width: 90%;
