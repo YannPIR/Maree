@@ -22,3 +22,7 @@ Si le chemin d'accès en jaune est sous l'eau, c'est que le spot n'est plus acce
 
 Si vous avez des questions, envies, remarques, n'hésitez pas à m'envoyer un message.
 Bien que les valeurs soient cohérentes, il doit y avoir une incertitude 15 à 30 minutes. Si vous finissez à l'eau par ma faute, je ne suis pas responsable.
+
+## Contacts
+
+Mail : yannluc.pierre@gmail.com
