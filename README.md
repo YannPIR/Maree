@@ -6,6 +6,7 @@ Elles permettent de visualiser le niveau de la mer dans les mois à venir sur di
 
 ## Utilisation
 Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur. Il y a une carte principale qui sert de page d'accueil pour accéder aux cartes individuelles : https://yannpir.github.io/Maree/  
+Il faut cliquer le site pour avoir ses infos, dont le lien hypertexte menant à sa carte. Il y a des sites de Bloc (rouge), de Diff (bleu) et mixte (violet).
   
 Quant à la lecture des données : un calendrier permet de renseigner la date et l'horaire souhaités. Les prévisions vont du 1er mars 2026 au 1er octobre 2026.
 Les mesures sont basées sur le zéro hydrographique de port aux alentours.  
