@@ -177,11 +177,20 @@ td video {
     margin-top: 8px;
     margin-right: 8px;
 }
-.bottom-right-title, .bottom-right-abstract  {
-    position: relative;
-    float: right;
+.bottom-right-title {
+    position: fixed;
+    bottom: 40px; /* au-dessus de l'abstract */
+    right: 8px;
+    width: max-content;
     margin-bottom: 8px;
-    margin-right: 8px;
+}
+
+.bottom-right-abstract {
+    position: fixed;
+    bottom: 0;
+    right: 8px;
+    width: max-content;
+    margin-bottom: 20px;
 }
 
 
