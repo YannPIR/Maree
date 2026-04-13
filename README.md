@@ -1,14 +1,11 @@
-# Les marées des sites d'escalade de Côtes-d'Armor
+# Les marées des sites d'escalade bretons
 Salut à toi jeune explorateur,
 
 Ce dépôt me sert à partager des cartes que j'ai réalisé sur QGIS dans mon temps libre.
-Elles permettent de visualiser le niveau de la mer dans les mois à venir sur nos spots favoris.
+Elles permettent de visualiser le niveau de la mer dans les mois à venir sur différents sites d'escalade bretons (Côtes-d'Armor et alentours).
 
 ## Utilisation
-Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur (il est possible, depuis une carte, d'accéder aux autres).  
-Pour Plougrescant : https://yannpir.github.io/Maree/Plougrescant/  
-Pour Loguivy-de-la-Mer : https://yannpir.github.io/Maree/Loguivy/  
-Pour Trégastel & Ploumanac'h : https://yannpir.github.io/Maree/Tregastel/  
+Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur. Il y a une carte principale qui sert de page d'accueil pour accéder aux cartes individuelles : https://yannpir.github.io/Maree/  
   
 Quant à la lecture des données : un calendrier permet de renseigner la date et l'horaire souhaités. Les prévisions vont du 1er mars 2026 au 1er octobre 2026.
 Les mesures sont basées sur le zéro hydrographique de port aux alentours.  
