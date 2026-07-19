@@ -1,8 +1,8 @@
 # Prévision des marées sur les sites d'escalade bretons
 Salut à toi jeune explorateur,
 
-Ce dépôt me sert à partager un projet que j'ai réalisé sur QGIS et R Shiny dans mon temps libre.
-Elles permettent de visualiser le niveau de la mer dans les mois à venir sur différents sites d'escalade bretons (Côtes-d'Armor et alentours).
+Ce dépôt me sert à partager un projet que j'ai réalisé sur QGIS et R Shiny dans mon temps libre.  
+L'application permet de visualiser le niveau de la mer dans les mois à venir sur différents sites d'escalade bretons (Côtes-d'Armor et alentours), ainsi que les fenêtres d'accessibilité de ces derniers.
 
 ## Utilisation
 L'application est hébergée sur un serveur [shinyapps](https://www.shinyapps.io/) et vous pouvez y accéder avec ce lien : <https://yannpir.shinyapps.io/CliffCast/>
