@@ -1,0 +1,893 @@
+---
+title: "CliffCast"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    social: menu
+    #source_code: https://github.com/walkerke/neighborhood_diversity
+    theme: cosmo
+---
+
+
+```{r setup, include=FALSE}
+
+library(shiny)
+library(shinyTime)
+library(plotly)
+library(leaflet)
+library(leaflet.extras)
+library(leaflet.extras2)
+library(tidyverse)
+library(sf)
+library(lubridate)
+library(rjson)
+library(RColorBrewer)
+
+###CHARGEMENT DES DONNEES
+niveaux_marees = st_read("data/niveaux_marees.gpkg", layer = "niveaux_marees")
+marees_infos = read.csv("data/marees_infos.csv", header = TRUE) %>%
+  mutate(
+    datetime = as.POSIXct(datetime, format = "%Y-%m-%dT%H:%M", tz = "Europe/Paris")
+  )
+spots = st_read("data/spots.gpkg", layer = "spots")%>%
+  mutate(Spot_id = row_number())
+
+# On combine date + heure dans UNE seule expression réactive
+datetime_sel <- reactive({
+  req(input$date, input$horaires)  # attend que les deux soient définis
+  
+  heure_str <- format(input$horaires, "%H:%M:%S", tz = "Europe/Paris")
+  as.POSIXct(paste(input$date, heure_str), 
+             format = "%Y-%m-%d %H:%M:%S", 
+             tz = "Europe/Paris")
+  
+}) %>% debounce(300)
+
+#Icons identiques pour toutes les cartes
+spoticon = awesomeIcons(
+    icon = 'mountain',
+    iconColor = 'black',
+    library = 'fa',
+    markerColor = "white"
+  )
+
+###PÉRIODES DE DISPONIBILITÉS
+
+periodes = eventReactive(datetime_sel(),{
+  
+  acces_detail <- spots %>%
+  st_drop_geometry() %>%                     # on travaille sur les attributs
+  select(Spot_id, Spot, acces_possible, acces_limite, site) %>%
+  tidyr::crossing(
+    marees_infos %>% 
+    filter(as.Date(datetime, tz = "Europe/Paris") == as.Date(datetime_sel(), tz = "Europe/Paris")) %>%
+    select(-any_of("site"))) %>%
+  arrange(site, Spot_id, datetime) %>%
+  mutate(
+    categorie = case_when(
+      hauteur <= acces_possible ~ "possible",
+      hauteur <= acces_limite   ~ "limite",
+      TRUE                      ~ "impossible"
+    )
+  )
+
+# Fonction utilitaire : id de "run" (équivalent maison de data.table::rleid)
+run_id <- function(x) {
+  r <- rle(x)
+  rep(seq_along(r$lengths), r$lengths)
+}
+
+periodes <- acces_detail %>%
+  group_by(site, Spot_id) %>%
+  mutate(run = run_id(categorie)) %>%
+  group_by(site, Spot_id, Spot, run, categorie) %>%
+  summarise(
+    debut = min(datetime),
+    fin   = max(datetime) + minutes(10),   # ajoute le pas de temps pour que le segment aille jusqu'à la borne réelle
+    .groups = "drop"
+  ) %>%
+  filter(categorie != "impossible") %>%    # on n'affiche que "possible" et "limite"
+  select(-run)
+  
+return(periodes)
+})
+
+
+
+
+```
+
+
+
+Sidebar {.sidebar}
+=====================================================================
+
+```{r Chargement sidebar}
+tags$br()
+# Choix de la date et horaires
+dateInput(inputId =  "date", label = "Choisissez une date", value = NULL,
+          min = Sys.Date(), max = "2026-09-30",
+          format = "dd/mm/yyyy", weekstart = 1, language = "fr")
+
+offset_paris <- format(Sys.time(), "%z", tz = "Europe/Paris")
+sliderInput('horaires', label = 'Choisissez un horaire',
+            value = Sys.time(),
+            min = as.POSIXct(paste0(Sys.Date(), " 00:00:00"), tz = "Europe/Paris"),
+            max = as.POSIXct(paste0(Sys.Date(), " 23:59:59"), tz = "Europe/Paris"),
+            timeFormat = "%H:%M",
+            step = 300,
+            ticks = FALSE,
+            timezone = offset_paris)
+
+
+```
+
+Pour vérifier l'accessibilité des différents spots, __sélectionnez__ au moins une icône sur la carte en cliquant dessus, et allez sur la page dédiée en-bas de l'écran.
+
+
+Ploubazlanec {data-navmenu="Cotes-d Armor"}
+======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+```{r chargement données Ploubazlanec, include=FALSE}
+#Chargement des données
+niveaux_maree1 = niveaux_marees %>% filter(site == "Loguivy")
+maree_infos1 <- marees_infos %>% filter(site == "Loguivy")
+
+chemin1 = st_read("data/Acces.gpkg",layer = "chemins_Loguivy")
+parking1 = st_read("data/Acces.gpkg",layer = "parkings_Loguivy")
+spots1 = spots %>% filter(site == "Loguivy")
+
+```
+
+
+### Carte des sites de Ploubazlanec
+
+```{r Carte Ploubazlanec}
+#Initialisation de la carte à l'heure actuelle
+output$carte1 <- renderLeaflet({
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos1[which.min( abs(maree_infos1$datetime - Sys.time()) ),2]
+  id_niveau = which.min( abs( niveaux_maree1$hauteur - hauteur_sel ) )
+  
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree1$hauteur)
+  
+  carte <- leaflet() %>%
+    addTiles(
+      urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      attribution = "Orthophotos © IGN/Géoportail") %>%
+    clearShapes() %>%
+    addPolygons(data = niveaux_maree1[id_niveau,],
+             stroke = FALSE, smoothFactor = 0, 
+            fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+            layerId = "niveau") %>%
+    addPolylines(data = chemin1,
+            weight = 3,
+            color = "yellow",opacity = 1,  dashArray = "10 10") %>%
+    addDivicon(data = parking1,
+            html = "<i class='fa fa-parking' style='font-size:24px; color:#2A81CB;'></i>",
+            layerId = ~Nom) %>%
+    addAwesomeMarkers(data = spots1,
+            icon = spoticon,
+            layerId = ~Spot, group = "spots")
+  
+  carte
+  
+})
+
+#A chaque nouvelle sélection de horaires/dates
+observeEvent(datetime_sel(), {
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos1[which.min( abs(maree_infos1$datetime - datetime_sel()) ),2]
+  id_niveau = which.min( abs( niveaux_maree1$hauteur - hauteur_sel ) )
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree1$hauteur)
+  
+ #Remplace le niveau de mer actuel
+  carte <- leafletProxy('carte1') %>%
+      removeShape('niveau') %>%
+      addPolygons(data = niveaux_maree1[id_niveau,],
+                stroke = FALSE, smoothFactor = 0, 
+                fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+                layerId = "niveau")
+
+  }, ignoreInit = TRUE)
+
+# À chaque clique ajuste la sélection multiple
+selection1 <- reactiveVal(character(0))
+
+observeEvent(input$carte1_marker_click,{
+  req(input$carte1_marker_click)
+  id = str_remove(input$carte1_marker_click$id, pattern = "sel_")
+  
+  selection1(symdiff(id,selection1()))
+
+},ignoreInit = TRUE)
+
+#Quand la sélection bouge, ajoute les amrqueurs sélectionnés
+observeEvent(selection1(), {
+  
+  spoticon = awesomeIcons(
+    icon = 'mountain',
+    iconColor = 'white',
+    library = 'fa',
+    markerColor = "red"
+  )
+  
+#Remplace le niveau de mer actuel
+  map <- leafletProxy('carte1') %>%
+      clearGroup("sel") %>%
+    addAwesomeMarkers(data = spots1 %>% filter(Spot %in% selection1()),
+            icon = spoticon,
+            layerId = ~paste0("sel_", Spot), group = "sel")
+
+  },ignoreInit = TRUE)
+
+liste_spots1 <- reactive({
+  selection1()
+})
+
+leafletOutput('carte1')
+
+
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Graphe de la marée du jour
+
+```{r Courbe Ploubazlanec}
+# Courbe de la marée du jour
+output$courbe1 <- renderPlotly({
+  
+  maree_jour1 <- maree_infos1 %>% 
+    filter(as.Date(datetime, tz = "Europe/Paris") == as.Date(datetime_sel(), tz = "Europe/Paris"))
+  
+  point_sel <- maree_jour1[which.min(abs(maree_jour1$datetime - datetime_sel())), ]
+  hauteur_sel <- point_sel$hauteur
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree1$hauteur)
+  
+  graphe <- ggplot(maree_jour1, aes(x = datetime, y = hauteur)) + 
+    geom_area(data = maree_jour1 %>% mutate(hauteur = hauteur_sel), 
+              aes(x = datetime, y = hauteur, group = 1),
+              fill = pal(hauteur_sel), color = NA, alpha = 0.5) +
+    geom_line(color = "black", linewidth = 0.5) +
+    geom_point(data = point_sel, aes(x = datetime, y = hauteur),
+               color = "red", size = 1.2) +
+    scale_x_datetime(date_breaks = "2 hour", date_labels = "%Hh%M") +
+    theme_minimal(base_size = 14) + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Heures", y = "Hauteur de mer")
+  
+  ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    layout(
+      title = list(
+        text = paste0(
+          "Marée du ", format(datetime_sel(), format = "%A %d %B %Y"),
+          "<br><sup>Hauteur de ", round(hauteur_sel,2), " m à ",format(datetime_sel(),"%Hh%M"),"</sup>"
+        ),
+        x = 0
+      ),
+      margin = list(l = 30, b = 50, r = 10, t = 60),
+      font = list(family = 'Arial', size = 16)
+    )
+})
+
+
+plotlyOutput('courbe1')
+
+```
+
+### Accessibilité des spots sur le site
+
+```{r Disponibilité Ploubazlanec}
+# Graphe des disponibilités
+output$dispos1 <- renderPlotly({
+  req(liste_spots1())
+  dt = periodes() %>% filter(Spot %in% liste_spots1() & site == "Loguivy")
+  
+
+  graphe = ggplot(dt) +
+  geom_rect(aes(xmin = debut, xmax = fin,
+                ymin = as.numeric(factor(Spot)) - 0.4,
+                ymax = as.numeric(factor(Spot)) + 0.4,
+                fill = categorie,
+                text = paste0(categorie, " de ", 
+                            format(debut, "%Hh%M"), " à ", format(fin, "%Hh%M")))) +
+  geom_vline(xintercept = as.numeric(datetime_sel()), color = "red", linewidth = 0.5) +
+  scale_y_continuous(
+    breaks = seq_along(levels(factor(dt$Spot))),
+    labels = levels(factor(dt$Spot))
+  ) +
+  scale_fill_manual(values = c("possible" = "seagreen", "limite" = "orange")) +
+  scale_x_datetime(date_breaks = "2 hour",date_labels = "%Hh%M") +
+  labs(x = "Heure", y = NULL, fill = "Accès") +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  
+  ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    layout(
+      title = list(
+        text = paste0(
+          "Disponibilités du ", format(datetime_sel(), format = "%A %d %B %Y")
+        ),
+        x = 0
+      ),
+      margin = list(l = 30, b = 50, r = 10, t = 60),
+      font = list(family = 'Arial', size = 16)
+    )
+})
+
+plotlyOutput('dispos1')
+
+```
+
+Plougrescant {data-navmenu="Cotes-d Armor"}
+============================================================================
+
+Row
+-----------------------------------------------------------------------
+
+```{r, include=FALSE}
+#Chargement des données
+niveaux_maree2 = niveaux_marees %>% filter(site == "Plougrescant")
+maree_infos2 <- marees_infos %>% filter(site == "Plougrescant")
+
+chemin2 = st_read("data/Acces.gpkg",layer = "chemins_Plougrescant")
+parking2 = st_read("data/Acces.gpkg",layer = "parkings_Plougrescant")
+spots2 = spots %>% filter(site == "Plougrescant")
+
+```
+
+
+### Carte des sites de Plougrescant
+
+```{r}
+#Initialisation de la carte à l'heure actuelle
+output$carte2 <- renderLeaflet({
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos2[which.min( abs(maree_infos2$datetime - Sys.time()) ),2]
+  id_niveau = which.min( abs( niveaux_maree2$hauteur - hauteur_sel ) )
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree2$hauteur)
+  
+  carte <- leaflet() %>%
+    addTiles(
+      urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      attribution = "Orthophotos © IGN/Géoportail") %>%
+    clearShapes() %>%
+    addPolygons(data = niveaux_maree2[id_niveau,],
+                stroke = FALSE, smoothFactor = 0, 
+                fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+                layerId = "niveau") %>%
+    addPolylines(data = chemin2,
+            weight = 3,
+            color = "yellow",opacity = 1,  dashArray = "10 10") %>%
+    addDivicon(data = parking2,
+            html = "<i class='fa fa-parking' style='font-size:24px; color:#2A81CB;'></i>",
+            layerId = ~Nom) %>%
+    addAwesomeMarkers(data = spots2,
+            icon = spoticon,
+            layerId = ~Spot, group = "spots")
+  
+  carte
+  
+})
+
+observeEvent(datetime_sel(), {
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos2[which.min( abs(maree_infos2$datetime - datetime_sel()) ),2]
+  id_niveau = which.min( abs( niveaux_maree2$hauteur - hauteur_sel ) )
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree2$hauteur)
+  
+#Remplace le niveau de mer actuel
+  carte <- leafletProxy('carte2') %>%
+      removeShape('niveau') %>%
+      addPolygons(data = niveaux_maree2[id_niveau,],
+                stroke = FALSE, smoothFactor = 0, 
+                fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+                layerId = "niveau")
+
+  }, ignoreInit = TRUE)
+
+# Ajuste la sélection multiple à chaque clique
+selection2 <- reactiveVal(character(0))
+
+observeEvent(input$carte2_marker_click,{
+  req(input$carte2_marker_click)
+  id = str_remove(input$carte2_marker_click$id, pattern = "sel_")
+  
+  selection2(symdiff(id,selection2()))
+
+})
+
+observeEvent(selection2(), {
+  
+  spoticon = awesomeIcons(
+    icon = 'mountain',
+    iconColor = 'white',
+    library = 'fa',
+    markerColor = "red"
+  )
+  
+#Remplace le niveau de mer actuel
+  map <- leafletProxy('carte2') %>%
+      clearGroup("sel") %>%
+    addAwesomeMarkers(data = spots2 %>% filter(Spot %in% selection2()),
+            icon = spoticon,
+            layerId = ~paste0("sel_", Spot), group = "sel")
+
+  },ignoreInit = TRUE)
+
+liste_spots2 <- reactive({
+  selection2()
+})
+
+leafletOutput('carte2')
+
+
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Graphe de la marée du jour
+
+```{r}
+# Courbe de la marée du jour
+output$courbe2 <- renderPlotly({
+  
+  maree_jour2 <- maree_infos2 %>% 
+    filter(as.Date(datetime, tz = "Europe/Paris") == as.Date(datetime_sel(), tz = "Europe/Paris"))
+  
+  point_sel <- maree_jour2[which.min(abs(maree_jour2$datetime - datetime_sel())), ]
+  hauteur_sel <- point_sel$hauteur
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree2$hauteur)
+  
+  graphe <- ggplot(maree_jour2, aes(x = datetime, y = hauteur)) + 
+    geom_area(data = maree_jour2 %>% mutate(hauteur = hauteur_sel), 
+              aes(x = datetime, y = hauteur, group = 1),
+              fill = pal(hauteur_sel), color = NA, alpha = 0.5) +
+    geom_line(color = "black", linewidth = 0.5) +
+    geom_point(data = point_sel, aes(x = datetime, y = hauteur),
+               color = "red", size = 1.2) +
+    scale_x_datetime(date_breaks = "2 hour", date_labels = "%Hh%M") +
+    theme_minimal(base_size = 14) + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Heures", y = "Hauteur de mer")
+  
+  ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    layout(
+      title = list(
+        text = paste0(
+          "Marée du ", format(datetime_sel(), format = "%A %d %B %Y"),
+          "<br><sup>Hauteur de ", round(hauteur_sel,2), " m à ",format(datetime_sel(),"%Hh%M"),"</sup>"
+        ),
+        x = 0
+      ),
+      margin = list(l = 30, b = 50, r = 10, t = 60),
+      font = list(family = 'Arial', size = 16)
+    )
+})
+
+
+plotlyOutput('courbe2')
+
+```
+
+### Accessibilité des spots sur le site
+
+```{r, eval = TRUE}
+# Graphe des disponibilités
+output$dispos2 <- renderPlotly({
+  req(liste_spots2())
+  dt = periodes() %>% filter(Spot %in% liste_spots2() & site == "Plougrescant")
+  
+
+  graphe = ggplot(dt) +
+  geom_rect(aes(xmin = debut, xmax = fin,
+                ymin = as.numeric(factor(Spot)) - 0.4,
+                ymax = as.numeric(factor(Spot)) + 0.4,
+                fill = categorie,
+                text = paste0(categorie, " de ", 
+                            format(debut, "%Hh%M"), " à ", format(fin, "%Hh%M")))) +
+  geom_vline(xintercept = as.numeric(datetime_sel()), color = "red", linewidth = 0.5) +
+  scale_y_continuous(
+    breaks = seq_along(levels(factor(dt$Spot))),
+    labels = levels(factor(dt$Spot))
+  ) +
+  scale_fill_manual(values = c("possible" = "seagreen", "limite" = "orange")) +
+  scale_x_datetime(date_breaks = "2 hour",date_labels = "%Hh%M") +
+  labs(x = "Heure", y = NULL, fill = "Accès") +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  
+  ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    layout(
+      title = list(
+        text = paste0(
+          "Disponibilités du ", format(datetime_sel(), format = "%A %d %B %Y")
+        ),
+        x = 0
+      ),
+      margin = list(l = 30, b = 50, r = 10, t = 60),
+      font = list(family = 'Arial', size = 16)
+    )
+})
+
+plotlyOutput('dispos2')
+
+```
+
+Trégastel {data-navmenu="Cotes-d Armor"}
+===========================================================================
+
+Row
+-----------------------------------------------------------------------
+
+```{r, include=FALSE}
+#Chargement des données
+niveaux_maree3 = niveaux_marees %>% filter(site == "Tregastel")
+maree_infos3 <- marees_infos %>% filter(site == "Tregastel")
+
+
+```
+
+
+### Carte des sites de Trégastel & Ploumanac'h
+
+```{r}
+#Initialisation de la carte à l'heure actuelle
+output$carte3 <- renderLeaflet({
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos3[which.min( abs(maree_infos3$datetime - Sys.time()) ),2]
+  id_niveau = which.min( abs( niveaux_maree3$hauteur - hauteur_sel ) )
+  pal = colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree3$hauteur)
+  
+  carte <- leaflet() %>%
+    addTiles(
+      urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      attribution = "Orthophotos © IGN/Géoportail") %>%
+    clearShapes() %>%
+    addPolygons(data = niveaux_maree3[id_niveau,],
+                stroke = FALSE, smoothFactor = 0, 
+                fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+                layerId = "niveau")
+  
+  carte
+  
+})
+
+observeEvent(datetime_sel(), {
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos3[which.min( abs(maree_infos3$datetime - datetime_sel()) ),2]
+  id_niveau = which.min( abs( niveaux_maree3$hauteur - hauteur_sel ) )
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree3$hauteur)
+  
+#Remplace le niveau de mer actuel
+  carte <- leafletProxy('carte3') %>%
+      removeShape('niveau') %>%
+      addPolygons(data = niveaux_maree3[id_niveau,],
+                stroke = FALSE, smoothFactor = 0, 
+                fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+                layerId = "niveau")
+
+  }, ignoreInit = TRUE)
+
+
+
+leafletOutput('carte3')
+
+
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Graphe de la marée du jour
+
+```{r}
+# Courbe de la marée du jour
+output$courbe3 <- renderPlotly({
+  
+  maree_jour3 <- maree_infos3 %>% 
+    filter(as.Date(datetime, tz = "Europe/Paris") == as.Date(datetime_sel(), tz = "Europe/Paris"))
+  
+  point_sel <- maree_jour3[which.min(abs(maree_jour3$datetime - datetime_sel())), ]
+  hauteur_sel <- point_sel$hauteur
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree3$hauteur)
+  
+  graphe <- ggplot(maree_jour3, aes(x = datetime, y = hauteur)) + 
+    geom_area(data = maree_jour3 %>% mutate(hauteur = hauteur_sel), 
+              aes(x = datetime, y = hauteur, group = 1),
+              fill = pal(hauteur_sel), color = NA, alpha = 0.5) +
+    geom_line(color = "black", linewidth = 0.5) +
+    geom_point(data = point_sel, aes(x = datetime, y = hauteur),
+               color = "red", size = 1.2) +
+    scale_x_datetime(date_breaks = "2 hour", date_labels = "%Hh%M") +
+    theme_minimal(base_size = 14) + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Heures", y = "Hauteur de mer")
+  
+  ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    layout(
+      title = list(
+        text = paste0(
+          "Marée du ", format(datetime_sel(), format = "%A %d %B %Y"),
+          "<br><sup>Hauteur de ", round(hauteur_sel,2), " m à ",format(datetime_sel(),"%Hh%M"),"</sup>"
+        ),
+        x = 0
+      ),
+      margin = list(l = 30, b = 50, r = 10, t = 60),
+      font = list(family = 'Arial', size = 16)
+    )
+})
+
+
+plotlyOutput('courbe3')
+
+```
+
+### Accessibilité des spots sur le site
+
+```{r, eval = TRUE}
+
+
+```
+
+Primel {data-navmenu="Finistere"}
+============================================================================
+
+Row
+-----------------------------------------------------------------------
+
+```{r, include=FALSE}
+#Chargement des données
+niveaux_maree4 = niveaux_marees %>% filter(site == "Primel")
+maree_infos4 <- marees_infos %>% filter(site == "Primel")
+
+chemin4 = st_read("data/Acces.gpkg",layer = "chemins_Primel")
+parking4 = st_read("data/Acces.gpkg",layer = "parkings_Primel")
+spots4 = spots %>% filter(site == "Primel")
+
+```
+
+
+### Carte des sites de Primel
+
+```{r}
+#Initialisation de la carte à l'heure actuelle
+output$carte4 <- renderLeaflet({
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos4[which.min( abs(maree_infos4$datetime - Sys.time()) ),2]
+  id_niveau = which.min( abs( niveaux_maree4$hauteur - hauteur_sel ) )
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree4$hauteur)
+  
+  carte <- leaflet() %>%
+    addTiles(
+      urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+      attribution = "Orthophotos © IGN/Géoportail") %>%
+    clearShapes() %>%
+    addPolygons(data = niveaux_maree4[id_niveau,],
+                stroke = FALSE, smoothFactor = 0, 
+                fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+                layerId = "niveau") %>%
+    addPolylines(data = chemin4,
+            weight = 3,
+            color = "yellow",opacity = 1,  dashArray = "10 10") %>%
+    addDivicon(data = parking4,
+            html = "<i class='fa fa-parking' style='font-size:24px; color:#2A81CB;'></i>",
+            layerId = ~Nom) %>%
+    addAwesomeMarkers(data = spots4,
+            icon = spoticon,
+            layerId = ~Spot, group = "spots")
+  
+  carte
+  
+})
+
+observeEvent(datetime_sel(), {
+  
+  #Trouve la hauteur correspondante à la date la plus proche
+  hauteur_sel = maree_infos4[which.min( abs(maree_infos4$datetime - datetime_sel()) ),2]
+  id_niveau = which.min( abs( niveaux_maree4$hauteur - hauteur_sel ) )
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree4$hauteur)
+  
+#Remplace le niveau de mer actuel
+  carte <- leafletProxy('carte4') %>%
+      removeShape('niveau') %>%
+      addPolygons(data = niveaux_maree4[id_niveau,],
+                stroke = FALSE, smoothFactor = 0, 
+                fillColor = ~pal(hauteur), fillOpacity = 0.5, 
+                layerId = "niveau")
+
+  }, ignoreInit = TRUE)
+
+# Ajuste la sélection multiple à chaque clique
+selection4 <- reactiveVal(character(0))
+
+observeEvent(input$carte4_marker_click,{
+  req(input$carte4_marker_click)
+  id = str_remove(input$carte4_marker_click$id, pattern = "sel_")
+  
+  selection4(symdiff(id,selection4()))
+
+})
+
+observeEvent(selection4(), {
+  
+  spoticon = awesomeIcons(
+    icon = 'mountain',
+    iconColor = 'white',
+    library = 'fa',
+    markerColor = "red"
+  )
+  
+#Remplace le niveau de mer actuel
+  map <- leafletProxy('carte4') %>%
+      clearGroup("sel") %>%
+    addAwesomeMarkers(data = spots4 %>% filter(Spot %in% selection4()),
+            icon = spoticon,
+            layerId = ~paste0("sel_", Spot), group = "sel")
+
+  },ignoreInit = TRUE)
+
+
+liste_spots4 <- reactive({
+  selection4()
+})
+
+leafletOutput('carte4')
+
+
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Graphe de la marée du jour
+
+```{r}
+# Courbe de la marée du jour
+output$courbe4 <- renderPlotly({
+  
+  maree_jour4 <- maree_infos4 %>% 
+    filter(as.Date(datetime, tz = "Europe/Paris") == as.Date(datetime_sel(), tz = "Europe/Paris"))
+  
+  point_sel <- maree_jour4[which.min(abs(maree_jour4$datetime - datetime_sel())), ]
+  hauteur_sel <- point_sel$hauteur
+  pal <- colorNumeric(rev(brewer.pal(9, "Blues")[4:8]), domain = niveaux_maree4$hauteur)
+  
+  graphe <- ggplot(maree_jour4, aes(x = datetime, y = hauteur)) + 
+    geom_area(data = maree_jour4 %>% mutate(hauteur = hauteur_sel), 
+              aes(x = datetime, y = hauteur, group = 1),
+              fill = pal(hauteur_sel), color = NA, alpha = 0.5) +
+    geom_line(color = "black", linewidth = 0.5) +
+    geom_point(data = point_sel, aes(x = datetime, y = hauteur),
+               color = "red", size = 1.2) +
+    scale_x_datetime(date_breaks = "2 hour", date_labels = "%Hh%M") +
+    theme_minimal(base_size = 14) + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+    labs(x = "Heures", y = "Hauteur de mer")
+  
+  ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    layout(
+      title = list(
+        text = paste0(
+          "Marée du ", format(datetime_sel(), format = "%A %d %B %Y"),
+          "<br><sup>Hauteur de ", round(hauteur_sel,2), " m à ",format(datetime_sel(),"%Hh%M"),"</sup>"
+        ),
+        x = 0
+      ),
+      margin = list(l = 30, b = 50, r = 10, t = 60),
+      font = list(family = 'Arial', size = 16)
+    )
+})
+
+
+plotlyOutput('courbe4')
+
+```
+
+### Accessibilité des spots sur le site
+
+```{r}
+# Graphe des disponibilités
+output$dispos4 <- renderPlotly({
+  req(liste_spots4())
+  dt = periodes() %>% filter(Spot %in% liste_spots4() & site == "Primel")
+  
+
+  graphe = ggplot(dt) +
+  geom_rect(aes(xmin = debut, xmax = fin,
+                ymin = as.numeric(factor(Spot)) - 0.4,
+                ymax = as.numeric(factor(Spot)) + 0.4,
+                fill = categorie,
+                text = paste0(categorie, " de ", 
+                            format(debut, "%Hh%M"), " à ", format(fin, "%Hh%M")))) +
+  geom_vline(xintercept = as.numeric(datetime_sel()), color = "red", linewidth = 0.5) +
+  scale_y_continuous(
+    breaks = seq_along(levels(factor(dt$Spot))),
+    labels = levels(factor(dt$Spot))
+  ) +
+  scale_fill_manual(values = c("possible" = "seagreen", "limite" = "orange")) +
+  scale_x_datetime(date_breaks = "2 hour",date_labels = "%Hh%M") +
+  labs(x = "Heure", y = NULL, fill = "Accès") +
+  theme_minimal(base_size = 14) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+  
+  ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    layout(
+      title = list(
+        text = paste0(
+          "Disponibilités du ", format(datetime_sel(), format = "%A %d %B %Y")
+        ),
+        x = 0
+      ),
+      margin = list(l = 30, b = 50, r = 10, t = 60),
+      font = list(family = 'Arial', size = 16)
+    )
+})
+
+plotlyOutput('dispos4')
+
+```
+
+
+Informations {data-icon="fa-circle-info"}
+============================================================================
+
+Row {data-height=600}
+----------------------------------------------------------------------------
+
+### Les marées des sites d'escalade bretons {data-width=300}
+Salut à toi jeune explorateur,
+
+Ce dépôt me sert à partager des cartes que j'ai réalisé sur QGIS dans mon temps libre.  
+Elles permettent de visualiser le niveau de la mer dans les mois à venir sur différents sites d'escalade bretons (Côtes-d'Armor et alentours).
+
+### Utilisation {data-width=700}
+Ce sont des fichiers html qui s'ouvrent directement dans ton navigateur. Il y a une carte principale qui sert de page d'accueil pour accéder aux cartes individuelles : https://yannpir.github.io/Maree/  
+Il faut cliquer le site pour avoir ses infos, dont le lien hypertexte menant à sa carte. Il y a des sites de Bloc (rouge), de Diff (bleu) et mixte (violet).
+
+La barre de navigation en haut vous permet de sélectionner le site qui vous intéresse (ils sont triés par département).  
+Quant à la lecture des données : un calendrier permet de renseigner la date et l'horaire souhaités. Les prévisions vont du 1er mars 2026 au 1er octobre 2026.
+Les mesures sont basées sur le zéro hydrographique de port aux alentours.  
+Cela devrait être suffisamment cohérent avec les sites de relevée de marées type maree.info .  
+  
+
+Row {.tabset}
+----------------------------------------------------------------------------
+
+### Sources
+Les prévisions de marées proviennent de l'application __Marée__ de Christian Guine. Les couches du niveau de la mer sont générées à l'aide du [Modèle Numérique de Terrain](https://diffusion.shom.fr/multiproduct/product/configure/id/427) du __SHOM__.
+
+L'application est faite à l'aide du framework [Shiny](http://shiny.rstudio.com) en [langage R](https://www.r-project.org/). La mise en page est produite à l'aide du package [flexdashboard](http://rstudio.github.io/flexdashboard/index.html), et les graphiques ainsi que les cartes grâce aux packages [Plotly](http://plot.ly), [Leaflet.js](http://leafletjs.com/) et [ggplot2](http://ggplot2.org/).  Le code de l'application est disponible sur ce lien : <https://github.com/walkerke/neighborhood_diversity>. 
+
+### Remarques
+
+Si vous avez des questions, envies, remarques, n'hésitez pas à m'envoyer un message.
+Bien que les valeurs soient cohérentes, il doit y avoir une incertitude 15 à 30 minutes. Si vous finissez à l'eau par ma faute, je ne suis pas responsable.
+
+### Contacts
+
+Mail : [yannluc.pierre@gmail.com](mailto:yannluc.pierre@gmail.com)
+
+
+
+<style>
+.icon-transparent {
+  background: transparent;
+  border: none;
+}
+</style>
