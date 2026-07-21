@@ -1,11 +1,13 @@
 ---
 title: "CliffCast"
+author: "Yann PIERRE"
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: fill
-    social: menu
+    navbar:
+      - { title: "V1", icon: "fa-map-o", href: "https://yannpir.github.io/Maree/", align: right }
     source_code: https://github.com/YannPIR/Maree
     theme: cosmo
 ---
@@ -160,7 +162,12 @@ output$carte1 <- renderLeaflet({
   carte <- leaflet() %>%
     addTiles(
       urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
-      attribution = "Orthophotos © IGN/Géoportail") %>%
+      attribution = "Orthophotos © IGN/Géoportail",
+      options = tileOptions(
+          minZoom = 0,
+          maxNativeZoom = 19, 
+          maxZoom = 22          
+      )) %>%
     clearShapes() %>%
     addPolygons(data = niveaux_maree1[id_niveau,],
              stroke = FALSE, smoothFactor = 0, 
@@ -266,6 +273,7 @@ output$courbe1 <- renderPlotly({
     labs(x = "Heures", y = "Hauteur de mer")
   
   ggplotly(graphe, source = 'source', tooltip = "text") %>% 
+    
     layout(
       title = list(
         text = paste0(
@@ -276,7 +284,9 @@ output$courbe1 <- renderPlotly({
       ),
       margin = list(l = 30, b = 50, r = 10, t = 60),
       font = list(family = 'Arial', size = 16)
-    )
+    )%>% 
+    
+    config(displayModeBar = F)
 })
 
 
@@ -321,7 +331,9 @@ output$dispos1 <- renderPlotly({
       ),
       margin = list(l = 30, b = 50, r = 10, t = 60),
       font = list(family = 'Arial', size = 16)
-    )
+    )%>% 
+    
+    config(displayModeBar = F)
 })
 
 plotlyOutput('dispos1')
@@ -360,7 +372,12 @@ output$carte2 <- renderLeaflet({
   carte <- leaflet() %>%
     addTiles(
       urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
-      attribution = "Orthophotos © IGN/Géoportail") %>%
+      attribution = "Orthophotos © IGN/Géoportail",
+      options = tileOptions(
+        minZoom = 0,
+        maxNativeZoom = 19,
+        maxZoom = 22
+      )) %>%
     clearShapes() %>%
     addPolygons(data = niveaux_maree2[id_niveau,],
                 stroke = FALSE, smoothFactor = 0, 
@@ -474,7 +491,9 @@ output$courbe2 <- renderPlotly({
       ),
       margin = list(l = 30, b = 50, r = 10, t = 60),
       font = list(family = 'Arial', size = 16)
-    )
+    )%>% 
+    
+    config(displayModeBar = F)
 })
 
 
@@ -519,7 +538,9 @@ output$dispos2 <- renderPlotly({
       ),
       margin = list(l = 30, b = 50, r = 10, t = 60),
       font = list(family = 'Arial', size = 16)
-    )
+    )%>% 
+    
+    config(displayModeBar = F)
 })
 
 plotlyOutput('dispos2')
@@ -555,7 +576,12 @@ output$carte3 <- renderLeaflet({
   carte <- leaflet() %>%
     addTiles(
       urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
-      attribution = "Orthophotos © IGN/Géoportail") %>%
+      attribution = "Orthophotos © IGN/Géoportail",
+      options = tileOptions(
+        minZoom = 0,
+        maxNativeZoom = 19,
+        maxZoom = 22
+      )) %>%
     clearShapes() %>%
     addPolygons(data = niveaux_maree3[id_niveau,],
                 stroke = FALSE, smoothFactor = 0, 
@@ -629,7 +655,9 @@ output$courbe3 <- renderPlotly({
       ),
       margin = list(l = 30, b = 50, r = 10, t = 60),
       font = list(family = 'Arial', size = 16)
-    )
+    )%>% 
+    
+    config(displayModeBar = F)
 })
 
 
@@ -676,7 +704,12 @@ output$carte4 <- renderLeaflet({
   carte <- leaflet() %>%
     addTiles(
       urlTemplate = "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
-      attribution = "Orthophotos © IGN/Géoportail") %>%
+      attribution = "Orthophotos © IGN/Géoportail",
+      options = tileOptions(
+        minZoom = 0,
+        maxNativeZoom = 19,
+        maxZoom = 22
+      )) %>%
     clearShapes() %>%
     addPolygons(data = niveaux_maree4[id_niveau,],
                 stroke = FALSE, smoothFactor = 0, 
@@ -791,7 +824,9 @@ output$courbe4 <- renderPlotly({
       ),
       margin = list(l = 30, b = 50, r = 10, t = 60),
       font = list(family = 'Arial', size = 16)
-    )
+    )%>% 
+    
+    config(displayModeBar = F)
 })
 
 
@@ -836,7 +871,9 @@ output$dispos4 <- renderPlotly({
       ),
       margin = list(l = 30, b = 50, r = 10, t = 60),
       font = list(family = 'Arial', size = 16)
-    )
+    )%>% 
+    
+    config(displayModeBar = F)
 })
 
 plotlyOutput('dispos4')
@@ -844,7 +881,7 @@ plotlyOutput('dispos4')
 ```
 
 
-Informations {data-icon="fa-circle-info"}
+Informations {data-icon="fa-info-circle"}
 ============================================================================
 
 Row {data-height=600}
@@ -857,8 +894,6 @@ Ce dépôt me sert à partager des cartes que j'ai réalisé sur QGIS dans mon t
 Elles permettent de visualiser le niveau de la mer dans les mois à venir sur différents sites d'escalade bretons (Côtes-d'Armor et alentours).
 
 ### Utilisation {data-width=700}
-L'application est hébergée sur un serveur [shinyapps](https://www.shinyapps.io/) et vous pouvez y accéder avec ce lien : <https://yannpir.shinyapps.io/CliffCast/>
-
 La barre de navigation en haut vous permet de sélectionner le site qui vous intéresse (ils sont triés par département).  
 Quant à la lecture des données : un calendrier permet de renseigner la date et l'horaire souhaités. Les prévisions vont du 1er mars 2026 au 1er octobre 2026.
 Les mesures sont basées sur le zéro hydrographique de port aux alentours.  
